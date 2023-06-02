@@ -19,21 +19,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Url(BaseModel):
+
+class RouteInfo(BaseModel):
     url: str
+    travel_mode: str
+    fixed_start_point: str | None
+    fixed_end_point: str | None
+
 
 @app.post("/api/")
-async def optimize_url(url: Url):
+async def optimize_url(route_info: RouteInfo):
     # Do something with the url data
-    destinations, base_url, directories = qs_parser(url.url)
-    plan_output, distance = main(destinations)
-    solution_url = qs_constructor(destinations, base_url, directories, plan_output)
+    destinations, base_url, directories = qs_parser(route_info.url)
+    plan_output, distance, data = main(destinations, route_info)
+    solution_url, solution = qs_constructor(
+        destinations, base_url, directories, plan_output, data)
     return {
-        "url": url.url,
+        "url": route_info.url,
         "destinations": destinations,
-        "base_url": base_url,
-        "directories": directories,
-        "plan_output": plan_output,
         "distance": distance,
-        "solution_url": solution_url
+        "solution_url": solution_url,
+        "solution": solution
     }

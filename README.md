@@ -11,5 +11,5 @@ pip install -r requirements.txt
 Run
 
 ```
-python -m uvicorn main:app --reload
+python3 -m uvicorn main:app --reload
 ```
