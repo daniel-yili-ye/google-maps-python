@@ -4,9 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from tsp_solver import main
-from qs_parser import qs_parser
-from qs_constructor import qs_constructor
+from tsp_solver import TSPSolver
 
 app = FastAPI()
 
@@ -30,14 +28,13 @@ class RouteInfo(BaseModel):
 @app.post("/api/")
 async def optimize_url(route_info: RouteInfo):
     # Do something with the url data
-    destinations, base_url, directories = qs_parser(route_info.url)
-    plan_output, distance, data = main(destinations, route_info)
-    solution_url, solution = qs_constructor(
-        destinations, base_url, directories, plan_output, data)
+    optimized_url = TSPSolver(route_info)
+    optimized_url.solver('duration_matrix')
+    optimized_url.qs_constructor()
+
     return {
-        "url": route_info.url,
-        "destinations": destinations,
-        "distance": distance,
-        "solution_url": solution_url,
-        "solution": solution
+        "old_url": optimized_url.old_url,
+        "new_url": optimized_url.new_url,
+        "distance_diff": optimized_url.distance_diff,
+        "duration_diff": optimized_url.duration_diff,
     }
